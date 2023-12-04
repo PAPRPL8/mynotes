@@ -1,10 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
-
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_exceptions.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/utilities/show_error_dialog.dart';
-import 'package:mynotes/views/verify_email_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -56,14 +54,14 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                await AuthService.firebase().login(
                   email: email,
                   password: password,
                 );
 
                 if (context.mounted) {
-                  final user = FirebaseAuth.instance.currentUser;
-                  if (user?.emailVerified ?? false) {
+                  final user = AuthService.firebase().currentUser;
+                  if (user?.isEmailVerified ?? false) {
                     Navigator.of(context)
                         .pushNamedAndRemoveUntil(notesRoute, (route) => false);
                   } else {
@@ -71,19 +69,25 @@ class _LoginViewState extends State<LoginView> {
                         verifyEmailRoute, (route) => false);
                   }
                 }
-              } on FirebaseAuthException catch (e) {
+              } on UserNotFoundAuthException {
                 if (context.mounted) {
                   await showErrorDialog(
                     context,
-                    e.code,
+                    'User not found.',
                   );
                 }
-                devtools.log(e.code);
-              } catch (e) {
+              } on WrongPasswordAuthException {
                 if (context.mounted) {
                   await showErrorDialog(
                     context,
-                    e.toString(),
+                    'Wrong credentials',
+                  );
+                }
+              } on GenericAuthException {
+                if (context.mounted) {
+                  await showErrorDialog(
+                    context,
+                    'Authentication error',
                   );
                 }
               }
