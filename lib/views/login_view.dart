@@ -70,26 +70,23 @@ class _LoginViewState extends State<LoginView> {
                   }
                 }
               } on UserNotFoundAuthException {
-                if (context.mounted) {
-                  await showErrorDialog(
-                    context,
-                    'User not found.',
-                  );
-                }
+                if (!context.mounted) return;
+                await showErrorDialog(
+                  context,
+                  'User not found.',
+                );
               } on WrongPasswordAuthException {
-                if (context.mounted) {
-                  await showErrorDialog(
-                    context,
-                    'Wrong credentials',
-                  );
-                }
+                if (!context.mounted) return;
+                await showErrorDialog(
+                  context,
+                  'Wrong credentials',
+                );
               } on GenericAuthException {
-                if (context.mounted) {
-                  await showErrorDialog(
-                    context,
-                    'Authentication error',
-                  );
-                }
+                if (!context.mounted) return;
+                await showErrorDialog(
+                  context,
+                  'Authentication error',
+                );
               }
             },
             child: const Text('Login'),
