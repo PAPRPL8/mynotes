@@ -49,9 +49,8 @@ class NotesService {
       await open();
     } on DatabaseAlreadyOpenedException {
       // empty
-      print('DatabaseAlreadyOpenedException');
     } catch (e) {
-      print('wtf');
+      rethrow;
     }
   }
 
